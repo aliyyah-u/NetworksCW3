@@ -6,12 +6,12 @@ import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class TCPServer {
+public class MyServer {
 
     /**
      * Initialise a new server. To run the server, call run().
      */
-    public TCPServer() {}
+    public MyServer() {}
 
     /**
      * Runs the server.
@@ -22,7 +22,7 @@ public class TCPServer {
         /*** Set up to accept incoming TCP connections ***/
 
         // Port numbers will be in lecture 6
-        int port = 8080;
+        int port = 587;
 
         // Open the server socket
         System.out.println("Opening the server socket on port " + port);
@@ -62,7 +62,7 @@ public class TCPServer {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException {
-        TCPServer server = new TCPServer();
+        MyServer server = new MyServer();
         server.run();
     }
 }
