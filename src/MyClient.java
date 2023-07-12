@@ -13,5 +13,4 @@ public class MyClient {
                 socket.close();
             }catch(Exception e){System.out.println(e);}
         }
-
 }
