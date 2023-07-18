@@ -2,11 +2,18 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-public class MyServer {
+public class EmailServer {
     public static void main(String[] args){
         try{
             ServerSocket serverSocket=new ServerSocket(587);
-            Socket socket=serverSocket.accept();//establishes connection
+
+            //establishes connection
+            Socket socket=serverSocket.accept();
+            InetAddress clientAddress = socket.getInetAddress();
+
+            // to get address in text form
+            String clientAddressString = clientAddress.getHostAddress();
+
             DataInputStream dis=new DataInputStream(socket.getInputStream());
             String  str=(String)dis.readUTF();
             System.out.println("message= "+str);

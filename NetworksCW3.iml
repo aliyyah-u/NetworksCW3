@@ -7,5 +7,40 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="Java EE 6-Java EE 6" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5/docs/javadocs" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5/demo" />
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5/demo/client" />
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5/demo/logging" />
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5/demo/outlook" />
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5/demo/servlet" />
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5/demo/webapp/src/classes" />
+          <root url="file://$USER_HOME$/Downloads/javamail-1.4.5/demo/webapp/src/taglib" />
+        </SOURCES>
+        <jarDirectory url="file://$USER_HOME$/Downloads/javamail-1.4.5" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$USER_HOME$/Downloads/jaf-1.1.1" />
+        </CLASSES>
+        <JAVADOC>
+          <root url="file://$USER_HOME$/Downloads/jaf-1.1.1/docs/javadocs" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="file://$USER_HOME$/Downloads/jaf-1.1.1/demo" />
+        </SOURCES>
+        <jarDirectory url="file://$USER_HOME$/Downloads/jaf-1.1.1" recursive="false" />
+      </library>
+    </orderEntry>
   </component>
 </module>
