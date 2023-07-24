@@ -1,6 +1,7 @@
-import java.io.*;
-import java.net.*;
-import java.util.ArrayList;
+import java.io.DataInputStream;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class EmailServer {
     public static void main(String[] args){
@@ -19,16 +20,5 @@ public class EmailServer {
             System.out.println("message= "+str);
             serverSocket.close();
         }catch(Exception e){System.out.println(e);}
-
-        public class MySizeLimitedArrayList extends ArrayList<Socket> {
-            @Override
-            public boolean add(Socket e) {
-                if (this.size() < 10) {
-                    return super.add(e);
-                }
-                return false;
-            }
-        }
-
     }
 }
