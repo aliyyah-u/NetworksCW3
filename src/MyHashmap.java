@@ -4,19 +4,19 @@ public class MyHashmap {
 
     public static void main(String[] args) {
         // Create a HashMap object called umailEmails
-        HashMap<String, String> umailEmails = new HashMap<String, String>();
+        HashMap<String, String> umailEmails = new HashMap<>();
 
-        // Add keys and values (From, To)
-        umailEmails.put("glenda@umail.com", "tom.hanks@umail.com");
-        umailEmails.put("brendon@umail.com", "berlin@umail.com");
-        umailEmails.put("tom.hanks@umail.com", "berlin@umail.com");
-        umailEmails.put("debra@umail.com", "kant@umail.com");
-        umailEmails.put("berlin@umail.com", "glenda@umail.com");
-        umailEmails.put("kant@umail.com", "fernanda@umail.com");
-        umailEmails.put("ruby@umail.com", "debra@umail.com");
-        umailEmails.put("joe@umail.com", "fernanda@umail.com\"");
-        umailEmails.put("jack@umail.com", "ruby@umail.com");
-        umailEmails.put("fernanda@umail.com", "ruby@umail.com");
+        // Add keys and values (username, password)
+        umailEmails.put("glenda@umail.com", "elephant789!");
+        umailEmails.put("brendon@umail.com", "hippo5678!");
+        umailEmails.put("tom@umail.com", "giraffe8812?");
+        umailEmails.put("debra@umail.com", "koala5543.");
+        umailEmails.put("berlin@umail.com", "butterfly4.");
+        umailEmails.put("kant@umail.com", "crocodile99!");
+        umailEmails.put("ruby@umail.com", "monkey88!");
+        umailEmails.put("joe@umail.com", "tiger772?");
+        umailEmails.put("jack@umail.com", "parrot7831?");
+        umailEmails.put("fernanda@umail.com", "grasshopper87.");
         System.out.println(umailEmails);
     }
 }
