@@ -1,5 +1,3 @@
-import java.io.DataInputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -10,14 +8,10 @@ public class EmailServer {
 
             //establishes connection
             Socket socket=serverSocket.accept();
-            InetAddress clientAddress = socket.getInetAddress();
-
-            // to get address in text form
-            String clientAddressString = clientAddress.getHostAddress();
-
-            DataInputStream dis=new DataInputStream(socket.getInputStream());
-            String  str=(String)dis.readUTF();
-            System.out.println("message= "+str);
+            System.out.print(umailEmails.containsKey("glenda@umail.com"));
+            System.out.print(umailEmails.containsKey("bethany@umail.com"));
+            System.out.print(umailEmails.containsValue("monkey88!"));
+            System.out.print(umailEmails.containsValue("shark66!"));
             serverSocket.close();
         }catch(Exception e){System.out.println(e);}
     }
