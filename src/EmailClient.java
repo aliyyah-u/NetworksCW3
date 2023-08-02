@@ -1,7 +1,4 @@
-import java.net.Socket;
-import java.io.*;
-
-public class EmailClient {
+/*public class EmailClient {
         public static void main(String[] args) {
             try{
                 Socket socket=new Socket("localhost",587);
@@ -13,3 +10,4 @@ public class EmailClient {
             }catch(Exception e){System.out.println(e);}
         }
 }
+*/
