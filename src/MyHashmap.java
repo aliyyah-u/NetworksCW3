@@ -2,7 +2,7 @@ import java.util.HashMap;
 
 public class MyHashmap {
     String account;
-    HashMap<String, String> database = new HashMap<>();
+    HashMap<Account, String> database = new HashMap<>();
 
     public MyHashmap () {
     }
