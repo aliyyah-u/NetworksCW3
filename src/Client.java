@@ -33,22 +33,21 @@ public class Client {
 
 
 //
-    public void sendMessage() {
-        try {
-            bufferedWriter.write();
+public void sendMessage() {
+    try {
+        Scanner scanner = new Scanner(System.in);
+        while (socket.isConnected()) {
+            System.out.print("Enter message: ");
+            String messageToSend = scanner.nextLine();
+            bufferedWriter.write(userName + ": " + messageToSend);
             bufferedWriter.newLine();
             bufferedWriter.flush();
-            Scanner scanner = new Scanner(System.in);
-            while (socket.isConnected()) {
-                String messageToSend = scanner.nextLine();
-                bufferedWriter.write(email + ": " + messageToSend);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
-            }
-        } catch (IOException e) {
-            closeEverything(socket, bufferedReader, bufferedWriter);
         }
+    } catch (IOException e) {
+        closeEverything(socket, bufferedReader, bufferedWriter);
     }
+}
+
 
     public void listenForMessage() {
         new Thread(new Runnable() {
@@ -90,7 +89,7 @@ public class Client {
         String email = scanner.nextLine();
 
         Socket socket = new Socket("localhost", 587);
-        Client client = new Client(socket, email);
+        Client client = new Client(email, socket);
         client.listenForMessage();
         client.sendMessage();
 

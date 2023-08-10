@@ -1,8 +1,6 @@
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ClientHandler implements Runnable {
 
@@ -27,49 +25,68 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        String emailFromClient;
-        while (socket.isConnected()) {
-            try {
-                emailFromClient = bufferedReader.readLine();
-                broadcastMessage(emailFromClient);
-            } catch (IOException e) {
-                closeEverything(socket, bufferedReader, bufferedWriter);
-                break;
+        String messageFromClient;
+        try {
+            while (socket.isConnected()) {
+                messageFromClient = bufferedReader.readLine();
+                if (messageFromClient == null) {
+                    closeEverything(socket, bufferedReader, bufferedWriter);
+                    break;
+                } else if (messageFromClient.contains(">>")) {
+                    String recipientUsername = messageFromClient.substring(0, messageFromClient.indexOf(">")).trim();
+                    String messageToSend = messageFromClient.substring(messageFromClient.indexOf(">") + 2);
+                    sendToSpecificClient(recipientUsername, messageToSend);
+                } else {
+                    broadcastMessage(clientEmail + ": " + messageFromClient);
+                }
             }
+        } catch (IOException e) {
+            closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
 
-    public void sendToOneClient(String userName, Map<String, Client> clients) throws IOException {
-        while (true) {
-            String input = in.readLine();
-            if (input == null) //if there is no input,do nothing
-            {
+    public void sendToSpecificClient(String recipientUsername, String message) {
+        for (ClientHandler handler : clientHandlers) {
+            if (handler.clientEmail.equals(recipientUsername)) {
+                handler.sendMessage("DIRECT MESSAGE from " + clientEmail + ": " + message);
                 return;
             }
+        }
+        // If recipient not found, send a notification to sender
+        sendMessage("User " + recipientUsername + " not found or offline.");
+    }
 
-            //when a user sends a message to a specific user
-            else if (input.contains(">>"))   //checks whether the message contains a >>
-            {
-                String person = input.substring(0, input.indexOf(">"));    //extract the name of the destination user
-                for (HashMap.Entry<String, PrintWriter> entry : writersMap.entrySet())  //find the destination user from the users list
-                {
-                    if (entry.getKey().matches(person))  //if the destination user is found
-                    {
-                        PrintWriter writer = entry.getValue();
-                        writer.println("MESSAGE " + name + ": " + input);
-                    }
+    public void sendMessage(String message) {
+        try {
+            bufferedWriter.write(message);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+        } catch (IOException e) {
+            closeEverything(socket, bufferedReader, bufferedWriter);
+        }
+    }
+
+    public void broadcastMessage(String messageToSend) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            try {
+                if (!clientHandler.clientEmail.equals(clientEmail)) {
+                    clientHandler.bufferedWriter.write(messageToSend);
+                    clientHandler.bufferedWriter.newLine();
+                    clientHandler.bufferedWriter.flush();
                 }
-            } else {
+            } catch (IOException e) {
+                closeEverything(socket, bufferedReader, bufferedWriter);
             }
         }
     }
 
-        public void removeClientHandler () {
-            clientHandlers.remove(this);
-            broadcastMessage("SERVER: " + clientEmail + "has left the server");
-        }
+    public void removeClientHandler() {
+        clientHandlers.remove(this);
+        broadcastMessage("SERVER: " + clientEmail + " has left the server");
+    }
 
-        public void closeEverything (Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
+
+    public void closeEverything (Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter){
             removeClientHandler();
             try {
                 if (bufferedReader != null) {

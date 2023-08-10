@@ -12,17 +12,15 @@ public class Server {
         try {
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
-                Client c = new Client(UserName, socket);
-                clients.put(userName + ": "+ c);
-                System.out.println("A Umail client has connected!");
                 ClientHandler clientHandler = new ClientHandler(socket);
                 Thread thread = new Thread(clientHandler);
                 thread.start();
             }
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
+
 
     public void closeServerSocket() {
         try {
