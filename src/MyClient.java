@@ -48,11 +48,13 @@ public class MyClient {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String emailFromUmailUsers;
+                String messageFromServer;
                 while (socket.isConnected()) {
                     try {
-                        emailFromUmailUsers = bufferedReader.readLine();
-                        System.out.println(emailFromUmailUsers);
+                        messageFromServer = bufferedReader.readLine();
+                        if (messageFromServer != null) {
+                            System.out.println(messageFromServer);
+                        }
                     } catch (IOException e) {
                         closeEverything(socket, bufferedReader, bufferedWriter);
                     }
@@ -60,6 +62,7 @@ public class MyClient {
             }
         }).start();
     }
+
 
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
         try {

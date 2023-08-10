@@ -13,15 +13,20 @@ public class ClientHandler implements Runnable {
             this.socket = socket;
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Read the client's email and add it to the set of connected clients
             this.clientEmail = bufferedReader.readLine();
             this.server = server;
             server.addClient(clientEmail, new PrintWriter(bufferedWriter, true));
+
+            // Print the updated list of connected clients
+            server.printConnectedClients();
         } catch (IOException e) {
             closeEverything();
         }
     }
 
-    @Override
+
     public void run() {
         String messageFromClient;
         try {
@@ -31,13 +36,14 @@ public class ClientHandler implements Runnable {
                 if (parts.length == 2) {
                     String recipient = parts[0];
                     String message = parts[1];
-                    server.forwardMessage(recipient, clientEmail + ": " + message);
+                    server.forwardMessage(recipient, message, clientEmail);
                 }
             }
         } catch (IOException e) {
             closeEverything();
         }
     }
+
 
     public void closeEverything() {
         server.removeClient(clientEmail);
