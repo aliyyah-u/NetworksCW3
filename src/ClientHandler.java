@@ -9,7 +9,6 @@ public class ClientHandler implements Runnable {
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
     private String clientEmail;
-
     public ClientHandler(Socket socket) {
         try {
             this.socket = socket;
