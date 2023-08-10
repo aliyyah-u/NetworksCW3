@@ -13,7 +13,7 @@ public class Server {
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
                 Client c = new Client(UserName, socket);
-                clients.put(userName + ":" c);
+                clients.put(userName + ": "+ c);
                 System.out.println("A Umail client has connected!");
                 ClientHandler clientHandler = new ClientHandler(socket);
                 Thread thread = new Thread(clientHandler);
