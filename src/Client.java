@@ -37,9 +37,21 @@ public void sendMessage() {
     try {
         Scanner scanner = new Scanner(System.in);
         while (socket.isConnected()) {
-            System.out.print("Enter message: ");
-            String messageToSend = scanner.nextLine();
-            bufferedWriter.write(userName + ": " + messageToSend);
+            System.out.print("Enter message (use >>recipientUsername to send to a specific user): ");
+            String input = scanner.nextLine();
+            System.out.println("You entered: " + input); // Add this line to print the entered message
+
+            if (input.trim().isEmpty()) {
+                continue; // Skip empty messages
+            }
+
+            // Check if the message is intended for a specific user
+            if (input.startsWith(">>")) {
+                bufferedWriter.write(input); // Send as-is
+            } else {
+                bufferedWriter.write(">>" + input); // Convert to direct message format
+            }
+
             bufferedWriter.newLine();
             bufferedWriter.flush();
         }
@@ -47,6 +59,9 @@ public void sendMessage() {
         closeEverything(socket, bufferedReader, bufferedWriter);
     }
 }
+
+
+
 
 
     public void listenForMessage() {
@@ -85,8 +100,10 @@ public void sendMessage() {
     public static void main(String[] args) throws IOException {
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter your email: ");
+        System.out.print("Enter your email: ");
         String email = scanner.nextLine();
+        System.out.println("You entered: " + email);
+
 
         Socket socket = new Socket("localhost", 587);
         Client client = new Client(email, socket);

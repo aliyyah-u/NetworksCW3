@@ -1,5 +1,8 @@
-import java.net.*;
-import java.io.*;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Server {
     private ServerSocket serverSocket;
@@ -10,9 +13,13 @@ public class Server {
 
     public void startServer() {
         try {
+            List<ClientHandler> clients = new ArrayList<>(); // Initialize the clients list
+
             while (!serverSocket.isClosed()) {
                 Socket socket = serverSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(socket);
+                System.out.println("Client connected: " + socket.getInetAddress());
+                ClientHandler clientHandler = new ClientHandler(socket, clients); // Pass the clients list
+                clients.add(clientHandler); // Add the new client handler to the list
                 Thread thread = new Thread(clientHandler);
                 thread.start();
             }
@@ -20,6 +27,7 @@ public class Server {
             e.printStackTrace();
         }
     }
+
 
 
     public void closeServerSocket() {
