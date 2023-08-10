@@ -50,6 +50,19 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    public static void sendEmailToClient(String clientId, String email) {
+        DataOutputStream outputStream = clientOutputStreams.get(clientId);
+        if (outputStream != null) {
+            try {
+                outputStream.writeUTF(email);
+                outputStream.flush();
+            } catch (IOException e) {
+                // Handle exception if write fails for the client
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void removeClientHandler() {
         clientHandlers.remove(this);
         broadcastMessage("SERVER: " + clientEmail + "has left the server");
