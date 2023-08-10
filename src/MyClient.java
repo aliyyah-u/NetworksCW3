@@ -22,13 +22,19 @@ public class MyClient {
 
     public void sendMessage() {
         try {
-            bufferedWriter.write(email);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
             Scanner scanner = new Scanner(System.in);
+
             while (socket.isConnected()) {
-                String messageToSend = scanner.nextLine();
-                bufferedWriter.write(email + ": " + messageToSend);
+                System.out.print("Enter recipient email: ");
+                String recipient = scanner.nextLine();
+
+                System.out.print("Enter message: ");
+                String message = scanner.nextLine();
+
+                // Format the message as "recipientEmail: messageContent"
+                String formattedMessage = recipient + ": " + message;
+
+                bufferedWriter.write(formattedMessage);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
             }
@@ -36,6 +42,7 @@ public class MyClient {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
+
 
     public void listenForMessage() {
         new Thread(new Runnable() {

@@ -1,75 +1,46 @@
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class ClientHandler implements Runnable {
-
-    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
     private String clientEmail;
-    public ClientHandler(Socket socket) {
+    private MyServer server;
+
+    public ClientHandler(Socket socket, MyServer server) {
         try {
             this.socket = socket;
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.clientEmail = bufferedReader.readLine();
-            clientHandlers.add(this);
-            broadcastMessage("SERVER: " + clientEmail + " has joined the server");
+            this.server = server;
+            server.addClient(clientEmail, new PrintWriter(bufferedWriter, true));
         } catch (IOException e) {
-            closeEverything(socket, bufferedReader, bufferedWriter);
+            closeEverything();
         }
     }
 
     @Override
     public void run() {
-        String emailFromClient;
-        while (socket.isConnected()) {
-            try {
-                emailFromClient = bufferedReader.readLine();
-                broadcastMessage(emailFromClient);
-            } catch (IOException e) {
-                closeEverything(socket, bufferedReader, bufferedWriter);
-                break;
-            }
-        }
-    }
-
-    public void broadcastMessage(String messageToSend) {
-        for (ClientHandler clientHandler : clientHandlers) {
-            try {
-                if (!clientHandler.clientEmail.equals(clientEmail)) {
-                    clientHandler.bufferedWriter.write(messageToSend);
-                    clientHandler.bufferedWriter.newLine();
-                    clientHandler.bufferedWriter.flush();
+        String messageFromClient;
+        try {
+            while ((messageFromClient = bufferedReader.readLine()) != null) {
+                // Forward the message to the intended recipient
+                String[] parts = messageFromClient.split(": ", 2);
+                if (parts.length == 2) {
+                    String recipient = parts[0];
+                    String message = parts[1];
+                    server.forwardMessage(recipient, clientEmail + ": " + message);
                 }
-            } catch (IOException e) {
-                closeEverything(socket, bufferedReader, bufferedWriter);
             }
+        } catch (IOException e) {
+            closeEverything();
         }
     }
 
-    public static void sendEmailToClient(String clientId, String email) {
-        DataOutputStream outputStream = clientOutputStreams.get(clientId);
-        if (outputStream != null) {
-            try {
-                outputStream.writeUTF(email);
-                outputStream.flush();
-            } catch (IOException e) {
-                // Handle exception if write fails for the client
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void removeClientHandler() {
-        clientHandlers.remove(this);
-        broadcastMessage("SERVER: " + clientEmail + "has left the server");
-    }
-
-    public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
-        removeClientHandler();
+    public void closeEverything() {
+        server.removeClient(clientEmail);
         try {
             if (bufferedReader != null) {
                 bufferedReader.close();
