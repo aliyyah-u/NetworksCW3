@@ -121,7 +121,7 @@ public class SMTPClient {
 
     }
 
-    public void sendEmail(String from, String to, String subject, String body) {
+    public void sendEmail(String from, String to, String subject, String dateHeader, String body) {
         try {
             Socket client = new Socket(SMTPServer, SMTPPort);
 
@@ -154,9 +154,9 @@ public class SMTPClient {
             sockout.println("From: " + from);
             sockout.println("To: " + to);
             sockout.println("Subject: " + subject);
-            sockout.println(); // Blank line to separate headers and body
+            sockout.println(dateHeader);
             sockout.println(body);
-            sockout.println(".");
+            sockout.println("."); // End of email
             reply = sockin.readLine();
             System.out.println("S:" + reply);
 

@@ -2,12 +2,16 @@ import SMTP.SMTPClient;
 
 import java.io.*;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
+
 
 public class ClientHandler implements Runnable {
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
+    private String fromAddress;
 
     public ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
@@ -56,10 +60,14 @@ public class ClientHandler implements Runnable {
         if (clientInput.toUpperCase().startsWith("HELO")) {
             return "250 Hello";
         } else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
+            fromAddress = extractEmailAddress(clientInput, "MAIL FROM:");
             return "250 Ok";
         } else if (clientInput.toUpperCase().startsWith("RCPT TO:")) {
             return "250 Ok";
         } else if (clientInput.toUpperCase().equals("DATA")) {
+            if (fromAddress == null) {
+                return "500 Missing sender address. Use MAIL FROM: <email>";
+            }
             // Respond to DATA command
             bufferedWriter.write("354 Enter message, ending with a line with a single full stop (.)");
             bufferedWriter.newLine();
@@ -123,9 +131,17 @@ public class ClientHandler implements Runnable {
         // Extract 'Subject' from headers
         String subject = extractHeaderValue(headers, "Subject:");
 
+        // Generate the current date in RFC 822 format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy");
+        String dateHeader = "Date: " + dateFormat.format(new Date());
+
+        // Create the full set of headers including the new "Date" header
+        StringBuilder newHeaders = new StringBuilder();
+        newHeaders.append(headers).append("\r\n").append(dateHeader);
+
         // Create an instance of SMTPClient and send the email
         SMTPClient smtpClient = new SMTPClient("localhost", 25);
-        smtpClient.sendEmail(from, to, subject, emailContent);
+        smtpClient.sendEmail(from, to, subject, newHeaders.toString(), emailContent);
     }
 
     private String extractHeaderValue(String headers, String headerName) {
