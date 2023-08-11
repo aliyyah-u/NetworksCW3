@@ -31,6 +31,10 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
+            // Create the buffered reader and writer
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
             // Display SMTP initial greeting to the client.
             String serverGreeting = "220 SMTP Server Ready";
             bufferedWriter.write(serverGreeting);
@@ -66,6 +70,13 @@ public class ClientHandler implements Runnable {
             e.printStackTrace();
         } finally {
             try {
+                // Close the resources using try-with-resources
+                if (bufferedReader != null) {
+                    bufferedReader.close();
+                }
+                if (bufferedWriter != null) {
+                    bufferedWriter.close();
+                }
                 socket.close();
                 // Remove this client handler from the list
                 synchronized (clients) {
