@@ -17,6 +17,7 @@ public class ClientHandler implements Runnable {
     private String rcptAddress;
 
     private List<ClientHandler> clients;
+    private static Object lock = new Object();
 
     public ClientHandler(Socket socket, List<ClientHandler> clients) throws IOException {
         this.socket = socket;
@@ -47,10 +48,12 @@ public class ClientHandler implements Runnable {
                 String response = processClientCommand(clientInput, bufferedReader, bufferedWriter);
 
 
-                // Send response back to the client.
-                bufferedWriter.write(response);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
+                synchronized (lock) {
+                    // Send response back to the client
+                    bufferedWriter.write(response);
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                }
 
                 // Check if the QUIT command was received
                 if (clientInput.toUpperCase().equals("QUIT")) {
