@@ -6,6 +6,8 @@ import java.net.*;
 class SMTPClient {
     private String SMTPServer;
     private int SMTPPort;
+    private Socket client;
+
 
     public SMTPClient(String SMTPServer, int SMTPPort) {
         this.SMTPServer = SMTPServer;
