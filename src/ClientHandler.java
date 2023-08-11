@@ -19,6 +19,8 @@ public class ClientHandler implements Runnable {
     private List<ClientHandler> clients;
     private static Object lock = new Object();
 
+    private Database userDatabase = new Database();
+
     public ClientHandler(Socket socket, List<ClientHandler> clients) throws IOException {
         this.socket = socket;
         this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -80,7 +82,18 @@ public class ClientHandler implements Runnable {
             return "250 Hello";
         } else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
             fromAddress = extractEmailAddress(clientInput, "MAIL FROM:");
-            return "250 Ok";
+            // Prompt for password
+            bufferedWriter.write("334 Enter your password:");
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+            // Read password from client
+            String password = bufferedReader.readLine();
+            // Verify sender address and password using the Database
+            if (userDatabase.verifyCredentials(fromAddress, password)) {
+                return "250 Ok";
+            } else {
+                return "535 Authentication credentials invalid";
+            }
         } else if (clientInput.toUpperCase().startsWith("RCPT TO:")) {
             rcptAddress = extractEmailAddress(clientInput, "RCPT TO:");
             return "250 Ok";
