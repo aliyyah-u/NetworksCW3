@@ -3,11 +3,11 @@ package SMTP;
 import java.io.*;
 import java.net.*;
 
-class MySMTP {
+class SMTPClient {
     private String SMTPServer;
     private int SMTPPort;
 
-    public MySMTP(String SMTPServer, int SMTPPort) {
+    public SMTPClient(String SMTPServer, int SMTPPort) {
         this.SMTPServer = SMTPServer;
         this.SMTPPort = SMTPPort;
     }
