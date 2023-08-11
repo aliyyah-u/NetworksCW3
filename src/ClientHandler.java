@@ -49,7 +49,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private String processClientCommand(String clientInput, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
+    private String processClientCommand(String clientInput, BufferedReader bufferedReader, BufferedWriter bufferedWriter) throws IOException {
         if (clientInput.toUpperCase().startsWith("HELO")) {
             return "250 Hello";
         } else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
@@ -57,7 +57,22 @@ public class ClientHandler implements Runnable {
         } else if (clientInput.toUpperCase().startsWith("RCPT TO:")) {
             return "250 Ok";
         } else if (clientInput.toUpperCase().equals("DATA")) {
-            return "354 Start mail input";
+            // Respond to DATA command
+            bufferedWriter.write("354 Start mail input");
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+
+            // Read and write email content lines until a line starting with a "." is encountered
+            String emailLine;
+            while (!(emailLine = bufferedReader.readLine()).equals(".")) {
+                bufferedWriter.write(emailLine);
+                bufferedWriter.newLine();
+                bufferedWriter.flush();
+            }
+
+            // Read the reply after sending email content
+            String reply = bufferedReader.readLine();
+            return "250 " + reply; // Return the reply to the client
         } else if (clientInput.toUpperCase().equals("QUIT")) {
             return "221 Bye";
         } else {
