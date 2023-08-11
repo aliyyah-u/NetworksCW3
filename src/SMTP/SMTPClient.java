@@ -100,9 +100,7 @@ class SMTPClient {
             }
         } catch (IOException e) {
             System.out.println(e.toString());
-        }
-        finally
-        {
+        } finally {
             try {
                 // Attempt to close the client socket.
 
@@ -119,6 +117,11 @@ class SMTPClient {
         String SMTPServer = "localhost";
         int SMTPPort = 25;
 
-        Socket client = null;
+        SMTPClient smtpClient = new SMTPClient(SMTPServer, SMTPPort);
+        smtpClient.startSMTP();
     }
 }
+
+
+
+
