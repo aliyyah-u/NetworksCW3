@@ -7,12 +7,12 @@ import java.net.Socket;
 public class SMTPServer {
     private ServerSocket serverSocket;
     private List<ClientHandler> clients;
-    private int maxClients;
+    private int maxClients = 5;
 
     public SMTPServer(int port, int maxClients) throws IOException {
         serverSocket = new ServerSocket(port);
-        clients = new ArrayList<>();
         this.maxClients = maxClients;
+        clients = new ArrayList<>();
     }
 
     public void startServer() {
