@@ -29,8 +29,9 @@ public class ClientHandler implements Runnable {
                     break;  // Client disconnected.
                 }
 
-                // Process client command (you can extend this for handling different SMTP commands).
-                String response = processClientCommand(clientInput);
+                /// Process client command with bufferedReader and bufferedWriter.
+                String response = processClientCommand(clientInput, bufferedReader, bufferedWriter);
+
 
                 // Send response back to the client.
                 bufferedWriter.write(response);
@@ -48,9 +49,20 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private String processClientCommand(String clientInput) {
-        // Add your logic here to process SMTP commands and generate responses.
-        // For simplicity, let's echo back the client's input.
-        return "250 " + clientInput + " OK";
+    private String processClientCommand(String clientInput, BufferedReader bufferedReader, BufferedWriter bufferedWriter) {
+        if (clientInput.toUpperCase().startsWith("HELO")) {
+            return "250 Hello";
+        } else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
+            return "250 Ok";
+        } else if (clientInput.toUpperCase().startsWith("RCPT TO:")) {
+            return "250 Ok";
+        } else if (clientInput.toUpperCase().equals("DATA")) {
+            return "354 Start mail input";
+        } else if (clientInput.toUpperCase().equals("QUIT")) {
+            return "221 Bye";
+        } else {
+            return "500 Command not recognized";
+        }
     }
+
 }
