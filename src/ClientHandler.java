@@ -1,49 +1,82 @@
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClientHandler implements Runnable {
-
-    public static ArrayList<ClientHandler> clientHandlers = new ArrayList<>();
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
-    private String clientEmail;
-
     private List<ClientHandler> clients;
 
     public ClientHandler(Socket socket, List<ClientHandler> clients) throws IOException {
-        this.clients = clients; // Initialize the clients list
         try {
             this.socket = socket;
-            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            this.clients = clients;
             this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.clientEmail = bufferedReader.readLine();
-            System.out.println("Client email: " + clientEmail);
-            clientHandlers.add(this);
-            broadcastMessage("SERVER: " + clientEmail + " has joined the server");
+            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         } catch (IOException e) {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
     }
-
 
     @Override
     public void run() {
         String messageFromClient;
         try {
             while (socket.isConnected()) {
-                messageFromClient = bufferedReader.readLine();
-                if (messageFromClient == null) {
+                String input = bufferedReader.readLine();
+                if (input == null) {
                     closeEverything(socket, bufferedReader, bufferedWriter);
-                    break;
-                } else if (messageFromClient.startsWith(">>")) {
-                    String recipientUsername = messageFromClient.substring(2, messageFromClient.indexOf(" ")).trim();
-                    String messageToSend = messageFromClient.substring(messageFromClient.indexOf(" ") + 1);
-                    sendToSpecificClient(recipientUsername, messageToSend);
-                } else {
-                    broadcastMessage(clientEmail + ": " + messageFromClient);
+                    return;
+                }
+
+                // Handle SMTP commands
+                if (input.toUpperCase().startsWith("HELO")) {
+                    // Respond to HELO command
+                    bufferedWriter.write("250 Hello");
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                } else if (input.toUpperCase().startsWith("MAIL FROM:")) {
+                    // Respond to MAIL FROM command
+                    bufferedWriter.write("250 Ok");
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                } else if (input.toUpperCase().startsWith("RCPT TO:")) {
+                    // Respond to RCPT TO command
+                    bufferedWriter.write("250 Ok");
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                } else if (input.toUpperCase().equals("DATA")) {
+                    // Respond to DATA command
+                    bufferedWriter.write("354 Start mail input");
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+
+                    // Read email content
+                    StringBuilder emailContent = new StringBuilder();
+                    String line;
+                    while (!(line = bufferedReader.readLine()).equals(".")) {
+                        emailContent.append(line).append("\r\n");
+                    }
+
+                    // Send email using your SMTPDemo class
+                    boolean emailSent = sendEmailUsingSMTPDemo(emailContent.toString());
+
+                    // Respond based on the success of email sending
+                    if (emailSent) {
+                        bufferedWriter.write("250 Ok");
+                    } else {
+                        bufferedWriter.write("500 Error in sending email");
+                    }
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                } else if (input.toUpperCase().equals("QUIT")) {
+                    // Respond to QUIT command
+                    bufferedWriter.write("221 Bye");
+                    bufferedWriter.newLine();
+                    bufferedWriter.flush();
+                    closeEverything(socket, bufferedReader, bufferedWriter);
+                    return;
                 }
             }
         } catch (IOException e) {
@@ -54,44 +87,26 @@ public class ClientHandler implements Runnable {
             }
         }
     }
-
-
-    public void sendToSpecificClient(String recipientUsername, String message) throws IOException {
-        for (ClientHandler handler : clientHandlers) {
-            if (handler.clientEmail.equals(recipientUsername)) {
-                handler.sendMessage("DIRECT MESSAGE from " + clientEmail + ": " + message);
-                return;
-            }
-        }
-        // If recipient not found, send a notification to sender
-        sendMessage("User " + recipientUsername + " not found or offline.");
-    }
-
-    public void sendMessage(String message) throws IOException {
+    private boolean sendEmailUsingSMTPDemo(String emailContent) {
+        // Use your SMTPDemo class to send the email
+        // You can modify your SMTPDemo class to accept email content as parameters
+        // and return a boolean indicating success or failure
         try {
-            bufferedWriter.write(message);
-            bufferedWriter.newLine();
-            bufferedWriter.flush();
+            // Example usage:
+            String from = "sender@example.com";
+            String to = "recipient@example.com";
+            String mailHost = "mail.example.com";
+            SMTPDemo.SMTP mail = new SMTPDemo.SMTP(mailHost);
+            return mail.send(new StringReader(emailContent), from, to);
         } catch (IOException e) {
-            closeEverything(socket, bufferedReader, bufferedWriter);
+            return false;
         }
     }
-
-
-    public synchronized void broadcastMessage(String messageToSend) throws IOException {
-        for (ClientHandler clientHandler : clients) {
-            if (!clientHandler.clientEmail.equals(clientEmail)) {
-                clientHandler.sendMessage(messageToSend);
-            }
-        }
-    }
-
 
     public void removeClientHandler() throws IOException {
         clientHandlers.remove(this);
         broadcastMessage("SERVER: " + clientEmail + " has left the server");
     }
-
 
     public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter) throws IOException {
         removeClientHandler();
