@@ -76,7 +76,6 @@ public class SMTPClient {
                     String subject = stdin.readLine();
 
                     // Send the headers
-                    sockout.println("From: " + from);
                     sockout.println("To: " + to);
                     sockout.println("Subject: " + subject);
                     sockout.println(); // Blank line to separate headers and body
