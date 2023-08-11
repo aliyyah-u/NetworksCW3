@@ -7,10 +7,12 @@ import java.net.Socket;
 public class SMTPServer {
     private ServerSocket serverSocket;
     private List<ClientHandler> clients;
+    private int maxClients;
 
-    public SMTPServer(int port) throws IOException {
+    public SMTPServer(int port, int maxClients) throws IOException {
         serverSocket = new ServerSocket(port);
         clients = new ArrayList<>();
+        this.maxClients = maxClients;
     }
 
     public void startServer() {
@@ -20,10 +22,18 @@ public class SMTPServer {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connected: " + clientSocket.getInetAddress());
-                ClientHandler clientHandler = new ClientHandler(clientSocket);
-                clients.add(clientHandler);
-                Thread thread = new Thread(clientHandler);
-                thread.start();
+
+                // Check if the maximum number of clients is reached
+                if (clients.size() < maxClients) {
+                    ClientHandler clientHandler = new ClientHandler(clientSocket);
+                    clients.add(clientHandler);
+                    Thread thread = new Thread(clientHandler);
+                    thread.start();
+                } else {
+                    // Reject the client if the maximum number is reached
+                    System.out.println("Maximum number of clients reached. Rejecting connection.");
+                    clientSocket.close();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -31,23 +41,15 @@ public class SMTPServer {
     }
 
     public static void main(String[] args) {
-        int port = 25; // SMTP port
+        int port = 25;
+        int maxClients = 5;
 
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try {
             System.out.println("SMTP Server started on port " + port);
-
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getInetAddress());
-
-                // Create a new thread to handle the client.
-                ClientHandler clientHandler = new ClientHandler(clientSocket);
-                Thread thread = new Thread(clientHandler);
-                thread.start();
-            }
+            SMTPServer smtpServer = new SMTPServer(port, maxClients);
+            smtpServer.startServer();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 }
-
