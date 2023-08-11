@@ -144,26 +144,22 @@ public class SMTPClient {
             reply = sockin.readLine();
             System.out.println("S:" + reply);
 
-            // Send email headers and body
+            // Send email headers
             sockout.println("From: " + from);
             sockout.println("To: " + to);
             sockout.println("Subject: " + subject);
             sockout.println(dateHeader);
+            sockout.println(); // Blank line to separate headers and body
+            sockout.flush();
+
+            // Send email body
             sockout.println(body);
             sockout.println("."); // End of email
+            sockout.flush();
+
+            // Read the reply for the email content
             reply = sockin.readLine();
             System.out.println("S:" + reply);
-
-            //sending email content line by line
-            BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-            while (true) {
-                String line = stdin.readLine();
-                sockout.println(line);
-                sockout.flush();
-                if (line.equals(".")) {
-                    break;
-                }
-            }
 
             // Send QUIT command and receive response
             sockout.println("QUIT");
