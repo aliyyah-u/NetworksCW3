@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -15,10 +16,13 @@ public class ClientHandler implements Runnable {
 
     private String rcptAddress;
 
-    public ClientHandler(Socket socket) throws IOException {
+    private List<ClientHandler> clients;
+
+    public ClientHandler(Socket socket, List<ClientHandler> clients) throws IOException {
         this.socket = socket;
         this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        this.clients = clients;
     }
 
     @Override
@@ -52,6 +56,10 @@ public class ClientHandler implements Runnable {
         } finally {
             try {
                 socket.close();
+                // Remove this client handler from the list
+                synchronized (clients) {
+                    clients.remove(this);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
