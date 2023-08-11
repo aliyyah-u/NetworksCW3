@@ -82,6 +82,8 @@ public class ClientHandler implements Runnable {
             return "250 Hello";
         } else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
             fromAddress = extractEmailAddress(clientInput, "MAIL FROM:");
+            // Clear input buffer by reading the newline character
+            bufferedReader.readLine();
             // Prompt for password
             bufferedWriter.write("334 Enter your password:");
             bufferedWriter.newLine();
