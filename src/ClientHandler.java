@@ -68,39 +68,54 @@ public class ClientHandler implements Runnable {
             StringBuilder emailContent = new StringBuilder();
             String line;
 
-            // Read and construct email headers
-            StringBuilder headers = new StringBuilder();
-            while (!(line = bufferedReader.readLine()).isEmpty()) {
-                headers.append(line).append("\r\n");
-            }
 
-            // Read email content line by line until a line with a single full stop is encountered
-            while (!(line = bufferedReader.readLine()).equals(".")) {
+            // Read and construct email content line by line until a line with a single period is encountered
+            while (true) {
+                line = bufferedReader.readLine();
+                if (line.equals(".")) {
+                    break;
+                }
                 emailContent.append(line).append("\r\n");
             }
 
-            // Construct the complete email message
+            // Construct email headers
+            StringBuilder headers = new StringBuilder();
+            headers.append("From: ").append(extractEmailAddress(emailContent.toString(), "From:")).append("\r\n");
+            headers.append("To: ").append(extractEmailAddress(emailContent.toString(), "To:")).append("\r\n");
+            headers.append("Subject: ").append(extractHeaderValue(emailContent.toString(), "Subject:")).append("\r\n");
+
+
+            // Construct the complete email message by combining headers and content
             String emailMessage = headers.toString() + "\r\n" + emailContent.toString();
 
-            // Process the email message (validate, send, etc.)
+            // Extract 'From' and 'To' addresses from headers
+            String from = extractEmailAddress(emailMessage, "From:");
+            String to = extractEmailAddress(emailMessage, "To:");
+
+            // Extract 'Subject' from headers
+            String subject = extractHeaderValue(emailMessage, "Subject:");
+
+            // Process the email message
             String messageID = generateMessageID(); // Generate a unique message ID
             sendEmailUsingSMTPClient(headers.toString(), emailContent.toString());
 
 
             // Respond with the appropriate SMTP response
             return "250 Ok: queued as " + messageID;
-
         } else if (clientInput.toUpperCase().equals("QUIT")) {
             return "221 Bye";
         } else {
             return "500 Command not recognized";
         }
     }
+
     private String generateMessageID() {
         // Generate a unique message ID using UUID
         return "<" + UUID.randomUUID().toString() + ">";
     }
-    private void sendEmailUsingSMTPClient(String headers, String body) {
+
+    // Inside the ClientHandler class
+    private void sendEmailUsingSMTPClient(String headers, String emailContent) {
         // Extract 'From' and 'To' addresses from headers
         String from = extractEmailAddress(headers, "From:");
         String to = extractEmailAddress(headers, "To:");
@@ -110,8 +125,9 @@ public class ClientHandler implements Runnable {
 
         // Create an instance of SMTPClient and send the email
         SMTPClient smtpClient = new SMTPClient("localhost", 25);
-        smtpClient.sendEmail(from, to, subject, body);
+        smtpClient.sendEmail(from, to, subject, emailContent);
     }
+
     private String extractHeaderValue(String headers, String headerName) {
         // Find the index of the header
         int startIndex = headers.indexOf(headerName);
@@ -128,6 +144,7 @@ public class ClientHandler implements Runnable {
         // Extract and return the header value
         return headers.substring(startIndex + headerName.length(), endIndex).trim();
     }
+
     private String extractEmailAddress(String headers, String headerName) {
         // Extract the header value
         String headerValue = extractHeaderValue(headers, headerName);
