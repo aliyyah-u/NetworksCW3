@@ -1,3 +1,5 @@
+import SMTP.MySMTP;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -23,13 +25,17 @@ public class Server {
                 clients.add(clientHandler); // Add the new client handler to the list
                 Thread thread = new Thread(clientHandler);
                 thread.start();
+                // Pass the SMTP server information and start the SMTP logic
+                MySMTP mySMTP = new MySMTP("localhost", 25); // Replace with your SMTP server info
+                mySMTP.startSMTP();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    } catch(
+    IOException e)
+
+    {
+        e.printStackTrace();
     }
-
-
 
     public void closeServerSocket() {
         try {
@@ -42,9 +48,15 @@ public class Server {
     }
 
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(587);
+        ServerSocket serverSocket = new ServerSocket(25);
         System.out.println("Waiting for a client...");
         Server server = new Server(serverSocket);
         server.startServer();
+
+
+        // Pass the serverSocket to MySMTP class
+        MySMTP mySMTP = new MySMTP(serverSocket);
+        mySMTP.startSMTP();
     }
 }
+

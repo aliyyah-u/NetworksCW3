@@ -87,6 +87,7 @@ public class ClientHandler implements Runnable {
             }
         }
     }
+
     private boolean sendEmailUsingSMTPDemo(String emailContent) {
         // Use your SMTPDemo class to send the email
         // You can modify your SMTPDemo class to accept email content as parameters
@@ -96,7 +97,7 @@ public class ClientHandler implements Runnable {
             String from = "sender@example.com";
             String to = "recipient@example.com";
             String mailHost = "mail.example.com";
-            SMTPDemo.SMTP mail = new SMTPDemo.SMTP(mailHost);
+            MySMTP.SMTP mail = new MySMTP.SMTP(mailHost);
             return mail.send(new StringReader(emailContent), from, to);
         } catch (IOException e) {
             return false;
