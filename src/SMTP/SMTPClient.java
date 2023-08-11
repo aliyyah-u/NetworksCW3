@@ -70,13 +70,10 @@ public class SMTPClient {
                 if (cmd.toLowerCase().startsWith("data") &&
                         reply.substring(0, 3).equals("354")) {
                     // Prompt user for email details
-                    System.out.print("Enter recipient email: ");
-                    String to = stdin.readLine();
                     System.out.print("Enter email subject: ");
                     String subject = stdin.readLine();
 
                     // Send the headers
-                    sockout.println("To: " + to);
                     sockout.println("Subject: " + subject);
                     sockout.println(); // Blank line to separate headers and body
                     sockout.flush();

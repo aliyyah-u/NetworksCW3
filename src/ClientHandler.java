@@ -13,6 +13,8 @@ public class ClientHandler implements Runnable {
     private BufferedWriter bufferedWriter;
     private String fromAddress;
 
+    private String rcptAddress;
+
     public ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
         this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -22,7 +24,7 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            // Display SMTP greeting to the client.
+            // Display SMTP initial greeting to the client.
             String serverGreeting = "220 SMTP Server Ready";
             bufferedWriter.write(serverGreeting);
             bufferedWriter.newLine();
@@ -59,14 +61,20 @@ public class ClientHandler implements Runnable {
     private String processClientCommand(String clientInput, BufferedReader bufferedReader, BufferedWriter bufferedWriter) throws IOException {
         if (clientInput.toUpperCase().startsWith("HELO")) {
             return "250 Hello";
-        } else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
+        }
+
+        else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
             fromAddress = extractEmailAddress(clientInput, "MAIL FROM:");
             return "250 Ok";
         } else if (clientInput.toUpperCase().startsWith("RCPT TO:")) {
+            rcptAddress = extractEmailAddress(clientInput, "RCPT TO:");
             return "250 Ok";
         } else if (clientInput.toUpperCase().equals("DATA")) {
             if (fromAddress == null) {
                 return "500 Missing sender address. Use MAIL FROM: <email>";
+            }
+            if (rcptAddress == null) {
+                return "500 Missing recipient address. Use RCPT TO: <email>";
             }
             // Respond to DATA command
             bufferedWriter.write("354 Enter message, ending with a line with a single full stop (.)");
@@ -111,10 +119,10 @@ public class ClientHandler implements Runnable {
             // Call sendEmailUsingSMTPClient method with the stored "From" address
             sendEmailUsingSMTPClient(fromAddress, headers.toString(), emailContent.toString());
 
-
-            // Respond with the appropriate SMTP response
+            //SMTP response code and message to indicate the successful email queueing
             return "250 Ok: queued as " + messageID;
         } else if (clientInput.toUpperCase().equals("QUIT")) {
+            //SMTP response code to indicate that it is closing the connection with the client.
             return "221 Bye";
         } else {
             return "500 Command not recognized";
