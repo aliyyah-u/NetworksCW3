@@ -105,7 +105,11 @@ public class ClientHandler implements Runnable {
 
             // Process the email message
             String messageID = generateMessageID(); // Generate a unique message ID
-            sendEmailUsingSMTPClient(headers.toString(), emailContent.toString());
+            sendEmailUsingSMTPClient(from, headers.toString(), emailContent.toString());
+
+
+            // Call sendEmailUsingSMTPClient method with the stored "From" address
+            sendEmailUsingSMTPClient(fromAddress, headers.toString(), emailContent.toString());
 
 
             // Respond with the appropriate SMTP response
@@ -123,9 +127,8 @@ public class ClientHandler implements Runnable {
     }
 
     // Inside the ClientHandler class
-    private void sendEmailUsingSMTPClient(String headers, String emailContent) {
+    private void sendEmailUsingSMTPClient(String from, String headers, String emailContent) {
         // Extract 'From' and 'To' addresses from headers
-        String from = extractEmailAddress(headers, "From:");
         String to = extractEmailAddress(headers, "To:");
 
         // Extract 'Subject' from headers
