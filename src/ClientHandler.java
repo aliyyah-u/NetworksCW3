@@ -82,19 +82,30 @@ public class ClientHandler implements Runnable {
             return "250 Hello";
         } else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
             fromAddress = extractEmailAddress(clientInput, "MAIL FROM:");
-            // Clear input buffer by reading the newline character
-            bufferedReader.readLine();
+
             // Prompt for password
             bufferedWriter.write("334 Enter your password:");
             bufferedWriter.newLine();
             bufferedWriter.flush();
+
             // Read password from client
             String password = bufferedReader.readLine();
+
             // Verify sender address and password using the Database
             if (userDatabase.verifyCredentials(fromAddress, password)) {
-                return "250 Ok";
+                // Send response back to the client
+                bufferedWriter.write("250 Ok");
+                bufferedWriter.newLine();
+                bufferedWriter.flush(); // Flush the response
+
+                return null; // Return null to avoid sending another response here
             } else {
-                return "535 Authentication credentials invalid";
+                // Send response back to the client
+                bufferedWriter.write("535 Authentication credentials invalid");
+                bufferedWriter.newLine();
+                bufferedWriter.flush(); // Flush the response
+
+                return null; // Return null to avoid sending another response here
             }
         } else if (clientInput.toUpperCase().startsWith("RCPT TO:")) {
             rcptAddress = extractEmailAddress(clientInput, "RCPT TO:");
