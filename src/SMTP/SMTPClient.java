@@ -170,16 +170,6 @@ public class SMTPClient {
             System.out.println(e.toString());
         }
     }
-
-
-
-    public static void main(String[] args) {
-        String SMTPServer = "localhost";
-        int SMTPPort = 25;
-
-        SMTPClient smtpClient = new SMTPClient(SMTPServer, SMTPPort);
-        smtpClient.startSMTP();
-    }
 }
 
 
