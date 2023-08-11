@@ -104,7 +104,6 @@ public void sendMessage() {
         String email = scanner.nextLine();
         System.out.println("You entered: " + email);
 
-
         Socket socket = new Socket("localhost", 587);
         Client client = new Client(email, socket);
         client.listenForMessage();
