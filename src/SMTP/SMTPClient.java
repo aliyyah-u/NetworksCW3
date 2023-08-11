@@ -66,6 +66,7 @@ public class SMTPClient {
                 // with a . character. These lines constitute an email
                 // message.
 
+
                 if (cmd.toLowerCase().startsWith("data") &&
                         reply.substring(0, 3).equals("354")) {
                     // Prompt user for email details
@@ -75,18 +76,23 @@ public class SMTPClient {
                     String to = stdin.readLine();
                     System.out.print("Enter email subject: ");
                     String subject = stdin.readLine();
-                    System.out.println("Enter email body (end with a line containing a single dot):");
-                    StringBuilder bodyBuilder = new StringBuilder();
+
+                    // Send the headers
+                    sockout.println("From: " + from);
+                    sockout.println("To: " + to);
+                    sockout.println("Subject: " + subject);
+                    sockout.println(); // Blank line to separate headers and body
+                    sockout.flush();
+
+                    // Read and send the email content line by line until a line with a single full stop is encountered
                     while (true) {
                         String line = stdin.readLine();
+                        sockout.println(line);
+                        sockout.flush();
                         if (line.equals(".")) {
                             break;
                         }
-                        bodyBuilder.append(line).append("\r\n");
                     }
-
-                    // Send the email
-                    sendEmail(from, to, subject, bodyBuilder.toString());
 
                     // Read a reply string from the SMTP server program.
                     reply = sockin.readLine();
@@ -107,7 +113,6 @@ public class SMTPClient {
         } finally {
             try {
                 // Attempt to close the client socket.
-
                 if (client != null)
                     client.close();
             } catch (IOException e) {
