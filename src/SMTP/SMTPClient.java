@@ -3,7 +3,7 @@ package SMTP;
 import java.io.*;
 import java.net.*;
 
-class SMTPClient {
+public class SMTPClient {
     private String SMTPServer;
     private int SMTPPort;
     private Socket client;
@@ -68,26 +68,30 @@ class SMTPClient {
 
                 if (cmd.toLowerCase().startsWith("data") &&
                         reply.substring(0, 3).equals("354")) {
-                    do {
-                        cmd = stdin.readLine();
-
-                        if (cmd != null && cmd.length() > 1 &&
-                                cmd.charAt(0) == '.')
-                            cmd = "."; // Must be no chars after . char.
-
-                        sockout.println(cmd);
-
-                        if (cmd.equals("."))
+                    // Prompt user for email details
+                    System.out.print("Enter sender email: ");
+                    String from = stdin.readLine();
+                    System.out.print("Enter recipient email: ");
+                    String to = stdin.readLine();
+                    System.out.print("Enter email subject: ");
+                    String subject = stdin.readLine();
+                    System.out.println("Enter email body (end with a line containing a single dot):");
+                    StringBuilder bodyBuilder = new StringBuilder();
+                    while (true) {
+                        String line = stdin.readLine();
+                        if (line.equals(".")) {
                             break;
+                        }
+                        bodyBuilder.append(line).append("\r\n");
                     }
-                    while (true);
+
+                    // Send the email
+                    sendEmail(from, to, subject, bodyBuilder.toString());
 
                     // Read a reply string from the SMTP server program.
-
                     reply = sockin.readLine();
 
                     // Display the first line of this reply string.
-
                     System.out.println("S:" + reply);
 
                     continue;
@@ -111,6 +115,57 @@ class SMTPClient {
         }
 
     }
+
+    public void sendEmail(String from, String to, String subject, String body) {
+        try {
+            Socket client = new Socket(SMTPServer, SMTPPort);
+
+            BufferedReader sockin = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            PrintWriter sockout = new PrintWriter(client.getOutputStream(), true);
+
+            System.out.println("S:" + sockin.readLine());
+
+            // Send HELO command and receive response
+            sockout.println("HELO localhost");
+            String reply = sockin.readLine();
+            System.out.println("S:" + reply);
+
+            // Send MAIL FROM command and receive response
+            sockout.println("MAIL FROM:<" + from + ">");
+            reply = sockin.readLine();
+            System.out.println("S:" + reply);
+
+            // Send RCPT TO command and receive response
+            sockout.println("RCPT TO:<" + to + ">");
+            reply = sockin.readLine();
+            System.out.println("S:" + reply);
+
+            // Send DATA command and receive response
+            sockout.println("DATA");
+            reply = sockin.readLine();
+            System.out.println("S:" + reply);
+
+            // Send email headers and body
+            sockout.println("From: " + from);
+            sockout.println("To: " + to);
+            sockout.println("Subject: " + subject);
+            sockout.println(); // Blank line to separate headers and body
+            sockout.println(body);
+            sockout.println(".");
+            reply = sockin.readLine();
+            System.out.println("S:" + reply);
+
+            // Send QUIT command and receive response
+            sockout.println("QUIT");
+            reply = sockin.readLine();
+            System.out.println("S:" + reply);
+
+            client.close();
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        }
+    }
+
 
 
     public static void main(String[] args) {
