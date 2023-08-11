@@ -25,10 +25,12 @@ public class SMTPServer {
 
                 // Check if the maximum number of clients is reached
                 if (clients.size() < maxClients) {
-                    ClientHandler clientHandler = new ClientHandler(clientSocket,clients);
-                    clients.add(clientHandler);
-                    Thread thread = new Thread(clientHandler);
-                    thread.start();
+                    synchronized (clients) {
+                        ClientHandler clientHandler = new ClientHandler(clientSocket,clients);
+                        clients.add(clientHandler);
+                        Thread thread = new Thread(clientHandler);
+                        thread.start();
+                    }
                 } else {
                     // Reject the client if the maximum number is reached
                     System.out.println("Maximum number of clients reached. Rejecting connection.");

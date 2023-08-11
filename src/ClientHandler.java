@@ -34,7 +34,8 @@ public class ClientHandler implements Runnable {
             bufferedWriter.newLine();
             bufferedWriter.flush();
 
-            while (true) {
+            boolean shouldRun = true;
+            while (shouldRun) {
                 // Read client input.
                 String clientInput = bufferedReader.readLine();
 
@@ -50,6 +51,11 @@ public class ClientHandler implements Runnable {
                 bufferedWriter.write(response);
                 bufferedWriter.newLine();
                 bufferedWriter.flush();
+
+                // Check if the QUIT command was received
+                if (clientInput.toUpperCase().equals("QUIT")) {
+                    shouldRun = false;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -69,9 +75,7 @@ public class ClientHandler implements Runnable {
     private String processClientCommand(String clientInput, BufferedReader bufferedReader, BufferedWriter bufferedWriter) throws IOException {
         if (clientInput.toUpperCase().startsWith("HELO")) {
             return "250 Hello";
-        }
-
-        else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
+        } else if (clientInput.toUpperCase().startsWith("MAIL FROM:")) {
             fromAddress = extractEmailAddress(clientInput, "MAIL FROM:");
             return "250 Ok";
         } else if (clientInput.toUpperCase().startsWith("RCPT TO:")) {
@@ -89,13 +93,17 @@ public class ClientHandler implements Runnable {
             bufferedWriter.newLine();
             bufferedWriter.flush();
 
+            // Use a separate input stream to read the email content
+            InputStream is = socket.getInputStream();
+            BufferedReader emailBufferedReader = new BufferedReader(new InputStreamReader(is));
+
             StringBuilder emailContent = new StringBuilder();
             String line;
 
 
-            // Read and construct email content line by line until a line with a single period is encountered
+            // Read and construct email content line by line until a line with a single full stop is encountered
             while (true) {
-                line = bufferedReader.readLine();
+                line = emailBufferedReader.readLine();
                 if (line.equals(".")) {
                     break;
                 }
