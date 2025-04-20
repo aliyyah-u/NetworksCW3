@@ -2,7 +2,7 @@
 My email client & server for umail.com case study.
 This project allows users of the umail database to send emails to other members of the database.
 
-Author: Aliyyah Uddin
+Author: Aliyyah U.
 
 How to build and run the program:
 Open intelliJ IDE, go to open project, browse your computer and select this project to open it.
